@@ -1,0 +1,23 @@
+package configurator
+
+import (
+	"context"
+	"log"
+
+	"github.com/joho/godotenv"
+	"github.com/sethvargo/go-envconfig"
+)
+
+// LoadConfig loads uninitialized configuration values from the environment or from
+// 'configFile', applying the defaults as specified in the 'config' structure's tags.
+func LoadConfig[T any](configFile string, config *T) error {
+	if err := godotenv.Load(configFile); err != nil {
+		log.Printf("NOTE: ignored %v", err)
+	}
+
+	ctx := context.Background()
+	if err := envconfig.Process(ctx, config); err != nil {
+		return err
+	}
+	return nil
+}
