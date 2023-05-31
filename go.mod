@@ -1,6 +1,6 @@
 module github.com/noodnik2/configurator
 
-go 1.20
+go 1.18
 
 require (
 	github.com/joho/godotenv v1.5.1

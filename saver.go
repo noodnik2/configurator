@@ -21,7 +21,7 @@ func SaveConfig[T any](configFileName string, config T) error {
 
 // SaveConfigMap saves the map of environment name: environment value entries into 'configFile'.
 func SaveConfigMap(configFileName string, configMap map[string]any) error {
-	configFile, openErr := os.OpenFile(configFileName, os.O_CREATE|os.O_WRONLY, 0644)
+	configFile, openErr := os.OpenFile(configFileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
 	if openErr != nil {
 		return openErr
 	}

@@ -8,7 +8,7 @@ import (
 )
 
 // SetConfigEnvItem allows setting in-place config values by the Name of their corresponding environment variable.
-// See See https://go.dev/blog/laws-of-reflection and https://research.swtch.com/interfaces
+// See https://go.dev/blog/laws-of-reflection and https://research.swtch.com/interfaces
 func SetConfigEnvItem[T any](config *T, envName, newValueAsString string) error {
 	cfgStructType, cfgStructElements, getConfigInfoErr := getConfigStructInfo(config)
 	if getConfigInfoErr != nil {

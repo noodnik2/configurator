@@ -16,7 +16,7 @@ func TestApiLoadSuccess(t *testing.T) {
 		S2 string `env:"V_S2,default=Maybe"`
 		S3 string `env:"V_S3" secret:"true"`
 		S4 string `env:"V_S4,default=shush" secret:"mask"`
-		B1 bool   `env:"YESNO,default=true"`
+		B5 bool   `env:"YESNO,default=true"`
 	}
 
 	requirer := require.New(t)
@@ -31,7 +31,7 @@ func TestApiLoadSuccess(t *testing.T) {
 	requirer.Equal(envFileVS1Value, config1.S1)
 
 	// confirm default values are applied
-	requirer.True(config1.B1)
+	requirer.True(config1.B5)
 	requirer.Equal("Maybe", config1.S2)
 	requirer.Equal("shush", config1.S4)
 
@@ -58,8 +58,11 @@ func TestApiLoadRequired(t *testing.T) {
 	const envFileVS1Value = "this is the value of V_S1"
 
 	type testConfig struct {
-		S1 string `env:"V_S1,required"`
-		S2 string `env:"V_S2,required"`
+		S0  string `env:"V_S0,default=seen"`
+		S1  string `env:"V_S1,required"`
+		S1B string `env:"V_S1B,default=also_seen"`
+		S2  string `env:"V_S2,required"`
+		S3  string `env:"V_S3,default=not_seen"` // lack of required entry aborted the loop in envconfig.Process()
 	}
 
 	requirer := require.New(t)
@@ -75,4 +78,7 @@ func TestApiLoadRequired(t *testing.T) {
 	requirer.Error(loadErr)
 	requirer.Contains(loadErr.Error(), "missing required value")
 	requirer.Contains(loadErr.Error(), "V_S2")
+	requirer.Equal("seen", config.S0)
+	requirer.Equal("also_seen", config.S1B)
+	requirer.Equal("", config.S3)
 }
