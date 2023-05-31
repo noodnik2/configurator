@@ -1,9 +1,9 @@
-# configurator
+# configurator - `golang` CLI Configuration Library
 
-Golang CLI configuration library targeting functionalities:
-- Make it easy to load and save configuration values in a file
+Target functionality:
+- Make it easy to load and save application configuration in a file (e.g., `$HOME/.config/`_<your-app-name>_)
 - Allow configuration value overrides via environment variables
-- Enable the user to create or modify the configuration without a code editor
+- Enable a user to create or modify the configuration without a code editor
 
 ## Requirements
 
@@ -29,12 +29,26 @@ $ go get github.com/noodnik2/configurator
 
 See the source code for details.
 
+### Examples
+
+See example code that uses `configurator` in the [examples](./examples) sub-folder.
+
 ## Credits
 
 `configurator` builds on top of and extends three related foundational libraries:
-- [godotenv](https://github.com/joho/godotenv) - sets environment variables from a configuration file
-- [go-envconfig](https://github.com/sethvargo/go-envconfig) - populates struct field values based on environment variables
-- [promptui](https://github.com/manifoldco/promptui) - orchestrates a console-based dialog to set / modify configuration values
+- [GoDotEnv] - sets environment variables from a configuration file
+- [Envconfig] - populates struct field values based on environment variables
+- [promptui] - orchestrates a console-based dialog to set / modify configuration values
+
+## Caveats
+- Many cool features of [Envconfig] (such as the use of [Prefixes](https://github.com/sethvargo/go-envconfig/tree/main#prefix),
+  [Complex Types](https://github.com/sethvargo/go-envconfig/tree/main#complex-types) 
+  and [Nested Structs](https://github.com/sethvargo/go-envconfig/tree/main#structs)) aren't supported as of this writing,
+  but could be added if / when needed.
+
+[GoDotEnv]: https://github.com/joho/godotenv
+[Envconfig]: https://github.com/sethvargo/go-envconfig
+[promptui]: https://github.com/manifoldco/promptui
 
 
 

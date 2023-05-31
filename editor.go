@@ -43,6 +43,7 @@ func editConfig[T any](config *T, seam promptUiSeam, maxTimes int) error {
 				}
 				if cti.Secret != "" {
 					prompt.HideEntered = true
+					prompt.AllowEdit = false
 					if cti.Secret == "mask" {
 						prompt.Mask = '*'
 					}
@@ -59,7 +60,7 @@ func editConfig[T any](config *T, seam promptUiSeam, maxTimes int) error {
 		}
 
 		prompt := promptui.Prompt{
-			Label:     "Done?",
+			Label:     "Done",
 			Default:   "n",
 			IsConfirm: true,
 		}
