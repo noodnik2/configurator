@@ -6,7 +6,8 @@ Target functionality:
 - Enable a user to create or modify the configuration without a code editor
 
 ## Statistics
-- [![Go Coverage](https://github.com/noodnik2/configurator/wiki/coverage.svg)](https://raw.githack.com/wiki/noodnik2/configurator/coverage.html)
+[![Coverage By File](https://github.com/noodnik2/configurator/wiki/coverage.svg)](https://raw.githack.com/wiki/noodnik2/configurator/coverage.html)
+
 
 ## Requirements
 

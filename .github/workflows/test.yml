@@ -1,7 +1,12 @@
-name: Configurator Tests
+name: Run Unit Tests
 
-# Based on https://github.com/mvdan/github-actions-golang
-on: [push, pull_request]
+on:
+  push:
+    branches: main
+  pull_request:
+    types: [opened, edited, reopened]
+    branches: [main]
+
 jobs:
   test:
     strategy:
@@ -16,21 +21,3 @@ jobs:
           cache: false
       - uses: actions/checkout@v3
       - run: go test -v ./...
-  coverage:
-    needs: test
-    strategy:
-      matrix:
-        go-version: [1.20.x]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Update coverage report
-        uses: ncruces/go-coverage-report@v0.1.7
-        with:
-          report: 'true'
-          chart: 'true'
-          amend: 'false'
-        if: |
-          matrix.os == 'ubuntu-latest' &&
-          github.event_name == 'push'
-        continue-on-error: true
