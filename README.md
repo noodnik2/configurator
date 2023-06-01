@@ -5,6 +5,9 @@ Target functionality:
 - Allow configuration value overrides via environment variables
 - Enable a user to create or modify the configuration without a code editor
 
+## Statistics
+- [![Go Coverage](https://github.com/noodnik2/configurator/wiki/coverage.svg)](https://raw.githack.com/wiki/noodnik2/configurator/coverage.html)
+
 ## Requirements
 
 Since `configurator` uses [Generics](https://go.dev/doc/tutorial/generics), `go` version `1.18`

@@ -21,9 +21,8 @@ func TestApiLoadSuccess(t *testing.T) {
 
 	requirer := require.New(t)
 
-	envFileName, cleanupFn, ctefErr := createTempEnvFileFromMap(t, map[string]any{"V_S1": envFileVS1Value})
+	envFileName, ctefErr := createTempEnvFileFromMap(t, map[string]any{"V_S1": envFileVS1Value})
 	requirer.NoError(ctefErr)
-	defer cleanupFn()
 
 	// confirm values are read from the filesystem
 	config1 := testConfig{}
@@ -68,9 +67,8 @@ func TestApiLoadRequired(t *testing.T) {
 	requirer := require.New(t)
 
 	// only one of the two required values is provided
-	envFileName, cleanupFn, ctefErr := createTempEnvFileFromMap(t, map[string]any{"V_S1": envFileVS1Value})
+	envFileName, ctefErr := createTempEnvFileFromMap(t, map[string]any{"V_S1": envFileVS1Value})
 	requirer.NoError(ctefErr)
-	defer cleanupFn()
 
 	// confirm expected error is returned
 	config := testConfig{}

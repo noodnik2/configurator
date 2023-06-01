@@ -23,9 +23,8 @@ func TestApiSave(t *testing.T) {
 
 	requirer := require.New(t)
 
-	envFileName, cleanupFn, ctefErr := createTempEnvFileFromMap(t, map[string]any{"V_S1": envFileVS1Value})
+	envFileName, ctefErr := createTempEnvFileFromMap(t, map[string]any{"V_S1": envFileVS1Value})
 	requirer.NoError(ctefErr)
-	defer cleanupFn()
 
 	// load & verify config value read from file system
 	config1 := testConfig{}

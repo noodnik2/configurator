@@ -23,9 +23,8 @@ func TestApiEdit(t *testing.T) {
 
 	requirer := require.New(t)
 
-	envFileName, cleanupFn, ctefErr := createTempEnvFileFromMap(t, map[string]any{"V_S1": envFileVS1Value})
+	envFileName, ctefErr := createTempEnvFileFromMap(t, map[string]any{"V_S1": envFileVS1Value})
 	requirer.NoError(ctefErr)
-	defer cleanupFn()
 
 	// load & verify config value read from file system
 	config1 := testConfig{}
@@ -112,20 +111,14 @@ func (pu *promptUiTestSeam) getSelector(sr selectRunner) selectRunner {
 	return &pu.sr
 }
 
-func createTempEnvFileFromMap(t *testing.T, envMap map[string]any) (envFileName string, cleanupFn func(), err error) {
+func createTempEnvFileFromMap(t *testing.T, envMap map[string]any) (envFileName string, err error) {
 	var envFile *os.File
-	if envFile, err = os.CreateTemp(t.TempDir(), t.Name()); err != nil {
+	if envFile, err = os.CreateTemp("", t.Name()); err != nil {
 		return
 	}
-	defer func() {
-		require.NoError(t, envFile.Close())
-	}()
-
-	cleanupFn = func() {
-		require.NoError(t, os.Remove(envFile.Name()))
-	}
+	defer func() { require.NoError(t, envFile.Close()) }()
+	t.Cleanup(func() { require.NoError(t, os.Remove(envFile.Name())) })
 	if err = updateConfigFromMap(envFile, envMap); err != nil {
-		cleanupFn()
 		return
 	}
 
