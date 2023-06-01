@@ -8,56 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestApiEditEnv tests the synchronization between the configuration file and the environment
-// when an update made by the editor is saved using SaveConfig.  NOTE: this test case was used
-// to demonstrate a problem noted during an integration test, but was fixed in the internal
-// "writeConfigMap" function (tested in TestWriteConfigMap).  Therefore, due to its redundancy,
-// this test should be removed.
-func TestApiEditEnv(t *testing.T) {
-
-	const envFileVS1Value = "initial value of V_S1"
-
-	type testConfig struct {
-		S1 string `env:"V_S1" desc:"First string"`
-	}
-
-	requirer := require.New(t)
-
-	envFileName, cleanupFn, ctefErr := createTempEnvFileFromMap(t, map[string]any{"V_S1": envFileVS1Value})
-	requirer.NoError(ctefErr)
-	defer cleanupFn()
-
-	// load & verify config value read from file system
-	config1 := testConfig{}
-	requirer.NoError(LoadConfig(envFileName, &config1))
-	requirer.Equal(envFileVS1Value, config1.S1)
-
-	seam := &promptUiTestSeam{
-		pr: mockPr{
-			mockedResponses: map[int]string{
-				1: "y", // user says "y" the second time through the dialog
-			},
-		},
-	}
-	requirer.NoError(editConfig(&config1, seam, 2))
-
-	// confirm expected user interface dialog
-	requirer.Equal(2, len(seam.prompters))
-
-	// save the changes
-	requirer.NoError(SaveConfig(envFileName, config1))
-
-	// load the updated values into a new config structure
-	// NOTE: the updated values will likely be coming from the
-	// updated environment rather than the updated config file
-	config2 := testConfig{}
-	requirer.NoError(LoadConfig(envFileName, &config2))
-
-	// confirms we're able to see the edited value after re-loading
-	requirer.Equal(config1.S1, config2.S1)
-
-}
-
 func TestApiEdit(t *testing.T) {
 
 	const envFileVS1Value = "this is the value of V_S1"
@@ -174,7 +124,7 @@ func createTempEnvFileFromMap(t *testing.T, envMap map[string]any) (envFileName 
 	cleanupFn = func() {
 		require.NoError(t, os.Remove(envFile.Name()))
 	}
-	if err = writeConfigMap(envFile, envMap); err != nil {
+	if err = updateConfigFromMap(envFile, envMap); err != nil {
 		cleanupFn()
 		return
 	}

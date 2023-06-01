@@ -2,6 +2,7 @@ package configurator
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"testing"
 
@@ -43,21 +44,23 @@ func TestApiSave(t *testing.T) {
 	requirer.Equal(newS2, newConfig.S2)
 }
 
-func TestWriteConfigMap(t *testing.T) {
+func TestUpdateConfigFromMap(t *testing.T) {
 
 	testCases := []struct {
 		name           string
 		configVars     map[string]any
 		envVarsSet     []string
-		envVarsNotSet  []string
 		expectedOutput string
 	}{
 		{
 			name:           "basic",
-			configVars:     map[string]any{"V1": "val1", "V2": "val2"},
-			envVarsSet:     []string{"V1"},
-			envVarsNotSet:  []string{"V2"},
-			expectedOutput: "V1=val1\nV2=val2\n",
+			configVars:     map[string]any{"V1": "val1", "V2": "val2", "V3": ""},
+			expectedOutput: "V1=val1\nV2=val2\nV3=\n",
+		},
+		{
+			name:           "unset",
+			configVars:     map[string]any{"V1": "val1", "V2": nil, "V3": ""},
+			expectedOutput: "V1=val1\nV3=\n",
 		},
 	}
 
@@ -66,35 +69,24 @@ func TestWriteConfigMap(t *testing.T) {
 
 			requirer := require.New(t)
 
-			// clean up test case environment variables
-			defer func() {
-				for _, v := range append(tc.envVarsSet, tc.envVarsNotSet...) {
-					_ = os.Unsetenv(v)
-				}
-			}()
-
-			// set the "set" variables to something OTHER than what they will be set to
-			for _, v := range tc.envVarsSet {
-				requirer.NoError(os.Setenv(v, tc.configVars[v].(string)+"some changed value"))
-			}
-			// ensure the "not set" variables aren't set
-			for _, v := range tc.envVarsNotSet {
-				requirer.NoError(os.Unsetenv(v))
+			// set the variables to something OTHER than what they will be set to
+			for k := range tc.configVars {
+				t.Setenv(k, fmt.Sprintf("some different value for '%s'", k))
 			}
 
 			// invoke the writer
 			writer := &bytes.Buffer{}
-			requirer.NoError(writeConfigMap(writer, tc.configVars))
+			requirer.NoError(updateConfigFromMap(writer, tc.configVars))
 			requirer.Equal(tc.expectedOutput, writer.String())
 
-			// ensure the "set" variables now have the correct value
-			for _, v := range tc.envVarsSet {
-				requirer.Equal(tc.configVars[v].(string), os.Getenv(v))
-			}
-			// ensure the "not set" variables are still not set
-			for _, v := range tc.envVarsNotSet {
-				_, envVarIsSet := os.LookupEnv(v)
-				requirer.False(envVarIsSet)
+			// ensure the environment now has the correct values
+			for k, v := range tc.configVars {
+				if v != nil {
+					requirer.Equal(v.(string), os.Getenv(k))
+				} else {
+					_, isFound := os.LookupEnv(k)
+					requirer.False(isFound)
+				}
 			}
 		})
 	}

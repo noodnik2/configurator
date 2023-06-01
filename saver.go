@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"sort"
 )
 
 // SaveConfig saves the current 'config' values into 'configFile', and
@@ -32,27 +33,47 @@ func SaveConfigMap(configFileName string, configMap map[string]any) error {
 			log.Printf("NOTE: error closing %s: %v\n", configFileName, closeErr)
 		}
 	}()
-	return writeConfigMap(configFile, configMap)
+	return updateConfigFromMap(configFile, configMap)
 }
 
-func writeConfigMap(configFile io.Writer, configMap map[string]any) error {
-	// update the configuration file with the new value(s)
-	for envVarName, envVarVal := range configMap {
-		if _, printErr := fmt.Fprintf(configFile, "%s=%v\n", envVarName, envVarVal); printErr != nil {
+// updateConfigFromMap updates both the written configuration and the environment
+// to match the contents of the supplied map containing all configuration entries.
+// Configuration entries with nil values will be removed from both targets.  NOTE:
+// no transactional guarantees are provided; if an error is returned, partial
+// update(s) may have been made.
+func updateConfigFromMap(truncatedConfigFile io.Writer, fullConfigMap map[string]any) error {
+	sortedEnvVarNames := make([]string, len(fullConfigMap))
+	for envVarName := range fullConfigMap {
+		sortedEnvVarNames = append(sortedEnvVarNames, envVarName)
+	}
+	sort.Strings(sortedEnvVarNames)
+
+	// write the new configuration entries
+	for _, envVarName := range sortedEnvVarNames {
+		envVal := fullConfigMap[envVarName]
+		if envVal == nil {
+			continue
+		}
+		if _, printErr := fmt.Fprintf(truncatedConfigFile, "%s=%v\n", envVarName, envVal); printErr != nil {
 			return printErr
 		}
 	}
-	// update the environment with the new value(s)
-	couldntSetVars := make(map[string][]string)
-	for envVarName, envVarVal := range configMap {
-		if _, envVarFound := os.LookupEnv(envVarName); envVarFound {
-			if setEnvErr := os.Setenv(envVarName, fmt.Sprintf("%v", envVarVal)); setEnvErr != nil {
-				couldntSetVars[setEnvErr.Error()] = append(couldntSetVars[setEnvErr.Error()], envVarName)
+	// update the environment
+	cantUpdateVars := make(map[string][]string)
+	for _, envVarName := range sortedEnvVarNames {
+		envVal := fullConfigMap[envVarName]
+		if envVal == nil {
+			if unSetEnvErr := os.Unsetenv(envVarName); unSetEnvErr != nil {
+				cantUpdateVars[unSetEnvErr.Error()] = append(cantUpdateVars[unSetEnvErr.Error()], envVarName)
 			}
+			continue
+		}
+		if setEnvErr := os.Setenv(envVarName, fmt.Sprintf("%v", envVal)); setEnvErr != nil {
+			cantUpdateVars[setEnvErr.Error()] = append(cantUpdateVars[setEnvErr.Error()], envVarName)
 		}
 	}
-	if len(couldntSetVars) != 0 {
-		return fmt.Errorf("couldn't set environment variable(s): %s\n", couldntSetVars)
+	if len(cantUpdateVars) != 0 {
+		return fmt.Errorf("couldn't update environment variable(s): %s\n", cantUpdateVars)
 	}
 	return nil
 }
