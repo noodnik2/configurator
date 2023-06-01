@@ -117,11 +117,8 @@ func createTempEnvFileFromMap(t *testing.T, envMap map[string]any) (envFileName 
 		return
 	}
 	defer func() { require.NoError(t, envFile.Close()) }()
-	t.Cleanup(func() { require.NoError(t, os.Remove(envFile.Name())) })
-	if err = updateConfigFromMap(envFile, envMap); err != nil {
-		return
-	}
-
 	envFileName = envFile.Name()
+	t.Cleanup(func() { require.NoError(t, os.Remove(envFileName)) })
+	err = updateConfigFromMap(envFile, envMap)
 	return
 }
