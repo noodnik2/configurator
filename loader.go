@@ -15,7 +15,7 @@ import (
 // and into the environment.
 func LoadConfig[T any](configFile string, config *T) error {
 	if err := godotenv.Load(configFile); err != nil {
-		log.Printf("NOTE: ignored %v", err)
+		log.Printf("NOTE: ignored %v\n", err)
 	}
 
 	ctx := context.Background()
