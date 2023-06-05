@@ -73,7 +73,7 @@ func updateConfigFromMap(truncatedConfigFile io.Writer, fullConfigMap map[string
 		}
 	}
 	if len(cantUpdateVars) != 0 {
-		return fmt.Errorf("couldn't update environment variable(s): %s\n", cantUpdateVars)
+		return fmt.Errorf("couldn't update environment variable(s): %s", cantUpdateVars)
 	}
 	return nil
 }

@@ -66,7 +66,7 @@ func getConfigStructInfo[T any](config *T) (reflect.Type, reflect.Value, error) 
 		cfgStructElements = cfgStructElements.Elem()
 	}
 	if cfgStructElements.Kind() != reflect.Struct {
-		return nil, reflect.Value{}, fmt.Errorf("unsupported config kind(%d)\n", cfgStructElements.Kind())
+		return nil, reflect.Value{}, fmt.Errorf("unsupported config kind(%d)", cfgStructElements.Kind())
 	}
 	return cfgStructType, cfgStructElements, nil
 }

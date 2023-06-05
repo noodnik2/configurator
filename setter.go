@@ -73,7 +73,7 @@ func SetConfigEnvItem[T any](config *T, envName, newValueAsString string) error 
 			cfgStructFieldElement.SetUint(parseUint)
 			isSet = true
 		default:
-			return fmt.Errorf("unrecognized Kind(%v)\n", cfgStructFieldElementKind)
+			return fmt.Errorf("unrecognized Kind(%v)", cfgStructFieldElementKind)
 		}
 		break
 	}
