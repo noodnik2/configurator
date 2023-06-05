@@ -73,7 +73,7 @@ func editConfig[T any](config *T, seam promptUiSeam, maxTimes int) error {
 
 		loopCounter++
 		if loopCounter >= maxTimes {
-			return fmt.Errorf("too many edit attempts(%d)\n", loopCounter)
+			return fmt.Errorf("too many edit attempts(%d)", loopCounter)
 		}
 	}
 
