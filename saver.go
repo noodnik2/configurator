@@ -63,13 +63,16 @@ func updateConfigFromMap(truncatedConfigFile io.Writer, fullConfigMap map[string
 	for _, envVarName := range sortedEnvVarNames {
 		envVal := fullConfigMap[envVarName]
 		if envVal == nil {
-			if unSetEnvErr := os.Unsetenv(envVarName); unSetEnvErr != nil {
-				cantUpdateVars[unSetEnvErr.Error()] = append(cantUpdateVars[unSetEnvErr.Error()], envVarName)
+			_, found := os.LookupEnv(envVarName)
+			if found {
+				if unSetEnvErr := os.Unsetenv(envVarName); unSetEnvErr != nil {
+					cantUpdateVars[unSetEnvErr.Error()] = append(cantUpdateVars["unset "+unSetEnvErr.Error()], envVarName)
+				}
 			}
 			continue
 		}
 		if setEnvErr := os.Setenv(envVarName, fmt.Sprintf("%v", envVal)); setEnvErr != nil {
-			cantUpdateVars[setEnvErr.Error()] = append(cantUpdateVars[setEnvErr.Error()], envVarName)
+			cantUpdateVars[setEnvErr.Error()] = append(cantUpdateVars["set "+setEnvErr.Error()], envVarName)
 		}
 	}
 	if len(cantUpdateVars) != 0 {
